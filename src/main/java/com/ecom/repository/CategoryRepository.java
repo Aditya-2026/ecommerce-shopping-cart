@@ -7,4 +7,5 @@ import com.ecom.model.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
+	public Boolean existsByName(String name);
 }
