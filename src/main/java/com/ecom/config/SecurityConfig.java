@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,83 +20,35 @@ public class SecurityConfig {
 	@Autowired
 	@Lazy
 	private AuthFailureHandlerImpl authenticationFailureHandler;
-	
-    @Bean
-    public PasswordEncoder passwordEncoder() {
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
-    @Bean
-	public UserDetailsService userDetailsService() {
-    	return new UserDetailsServiceImpl();
+
+	@Bean
+	public AuthenticationManager authenticationManager(
+			AuthenticationConfiguration configuration) throws Exception {
+		return configuration.getAuthenticationManager();
 	}
-    
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-     
-//    @Bean
-//    public DaoAuthenticationProvider authenticationProvider() {
-//    	DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-//    	authenticationProvider.setUserDetailsService(userDetailsService());
-//    	authenticationProvider.setPasswordEncoder(passwordEncoder());
-//    	
-//    	return authenticationProvider;
-//    }
-    
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-    	http.csrf(csrf->csrf.disable()).cors(cors -> cors.disable())
-    			.authorizeHttpRequests(req->req.requestMatchers("/user/**").hasRole("USER")
-    			.requestMatchers("/admin/**").hasRole("ADMIN")
-    			.requestMatchers("/**").permitAll())
-    			.formLogin(form->form.loginPage("/signin")
-    					.loginProcessingUrl("/login")
-    					.usernameParameter("username")
-    				    .passwordParameter("password")
-    					.failureHandler(authenticationFailureHandler)
-    					.successHandler(authenticationSuccessHandler))
-    			.logout(logout->logout.permitAll());
-    	
-    	return http.build();
-    }
-    
-//    
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//
-//        http
-//            .csrf(csrf -> csrf.disable())
-//            .cors(cors -> cors.disable())
-//
-//            .authorizeHttpRequests(req -> req
-//                .requestMatchers(
-//                    "/", "/signin", "/register",
-//                    "/forgot-password", "/reset-password",
-//                    "/css/**", "/js/**", "/img/**"
-//                ).permitAll()
-//                .requestMatchers("/user/**").hasRole("USER")
-//                .requestMatchers("/admin/**").hasRole("ADMIN")
-//                .anyRequest().authenticated()
-//            )
-//
-//            .formLogin(form -> form
-//                .loginPage("/signin")
-//                .loginProcessingUrl("/login")
-//                .usernameParameter("username")
-//                .passwordParameter("password")
-//                .failureHandler(authenticationFailureHandler)
-//                .successHandler(authenticationSuccessHandler)
-//                .permitAll()
-//            )
-//
-//            .logout(logout -> logout
-//                .logoutSuccessUrl("/signin?logout")
-//                .permitAll()
-//            );
-//
-//        return http.build();
-//    }
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.disable())
+				.authorizeHttpRequests(req -> req.requestMatchers("/user/**").hasRole("USER")
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+						.requestMatchers("/", "/signin", "/signin?**", "/register", "/saveUser", "/forgot-password",
+								"/reset-password", "/css/**", "/js/**", "/img/**")
+						.permitAll()
+						.anyRequest().authenticated())
+				.formLogin(form -> form.loginPage("/signin")
+						.loginProcessingUrl("/login")
+						.usernameParameter("username")
+						.passwordParameter("password")
+						.failureHandler(authenticationFailureHandler)
+						.successHandler(authenticationSuccessHandler))
+				.logout(logout -> logout.permitAll());
+
+		return http.build();
+	}
 }

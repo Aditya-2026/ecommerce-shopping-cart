@@ -43,7 +43,7 @@ public class AdminController {
 	@Autowired
 	private UserService userService;
 	
-	@GetMapping("/")
+	@GetMapping({ "/" , "" })
 	public String index() {
 		return "admin/index";
 	}
