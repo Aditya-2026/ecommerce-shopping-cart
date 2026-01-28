@@ -19,5 +19,11 @@ public class CommonServiceImpl implements CommonService {
 		session.removeAttribute("succMsg");
 		session.removeAttribute("errorMsg");
 	}
+	
+//	@Override
+//	public String rupeeSign() {
+//	    return "&#8377;";
+//	}
+
 
 }
